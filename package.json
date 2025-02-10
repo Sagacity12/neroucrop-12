@@ -1,0 +1,40 @@
+{
+  "name": "agricsmart",
+  "version": "1.0.0",
+  "description": "This is an innovative platform designed to revolutionize the agricultural industry. It combines AI generative tools, educational resources, a marketplace for buying and selling products, and a robust payment system supporting MTN, cryptocurrency, and banking options. The platform aims to provide a seamless experience for users, integrating advanced technologies and user-friendly design. ",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon ./src/main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Sagacity12/neroucrop-12.git"
+  },
+  "author": "Edward Appiah",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Sagacity12/neroucrop-12.git"
+  },
+  "homepage": "https://github.com/Sagacity12/neroucrop-12.git#readme",
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.5.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-async-errors": "^3.1.1",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0",
+    "http-status-codes": "^2.3.0",
+    "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.6",
+    "morgan": "^1.10.0",
+    "nodemon": "^3.1.9",
+    "ratelimit": "^0.0.4"
+  }
+}
