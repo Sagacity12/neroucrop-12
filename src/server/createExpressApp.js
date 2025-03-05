@@ -4,8 +4,11 @@ import helmet from "helmet";
 import morgan from "morgan";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
-
-
+import routes from "../routes/routes.js";
+import errorHandler from "../middleware/error-handler.js";
+import notFoundMiddleware from '../middleware/not-found.js';
+import passport from 'passport';
+import { initializePassport } from '../services/google-auth/index.js';
 
 const limit = rateLimit({
     windowMs: 10 * 60 * 1000,
@@ -14,19 +17,25 @@ const limit = rateLimit({
 
 const createExpressApp = () => {
     const app = express();
+
+    // Middleware
     app.use(express.json());
     app.set("trust proxy", 1);
     app.use(limit);
-    app.use(morgan("combined"));
+    app.use(morgan("dev"));
     app.use(cors());
     app.use(helmet());
 
+    // Initialize Passport
+    initializePassport();
+    app.use(passport.initialize());
 
+    // Routes
+    app.use(routes);
 
-
-    app.all("*", (req, res) => {
-        res.status(404).send({ errors: [{ message: "Resource not found" }] });
-    });
+    // Error handling
+    app.use(notFoundMiddleware);
+    app.use(errorHandler);
 
     return app;
 };

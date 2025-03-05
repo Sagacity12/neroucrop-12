@@ -1,66 +1,92 @@
 //import { ref, required } from "joi";
 import mongoose from "mongoose";
+import { comparePassword } from '../helpers/index-helpers.js';
 
 const userSchema = new mongoose.Schema(
   {
+    fullname: {
+      type: String,
+      required: [true, "Fullname is required"],
+      trim: true,
+    },
     username: {
       type: String,
-      required: [true, "User name is required"],
-      unique: [true, "User name must be unique"],
+      required: [true, "Username is required"],
+      unique: true,
       trim: true,
-      maxlength: [50, "User name cannot be more than 50 characters"],
     },
     email: {
       type: String,
-      required: true,
+      required: [true, "Email is required"],
       unique: true,
       trim: true,
+      lowercase: true,
     },
     phone: {
       type: String,
-      required: true,
+      required: [true, "Phone number is required"],
       unique: true,
+    },
+    googleId: {
+      type: String,
+      sparse: true
     },
     password: {
       type: String,
-      required: true,
-      unique: true,
-      minlength: [8, "Password must be at least 8 characters long"],
+      required: function() {
+        // Password only required if not using OAuth
+        return !this.googleId;
+      },
+      select: false,
     },
-
     role: {
       type: String,
       enum: ["Admin", "Seller", "Buyer", "Educator"],
       required: true,
     },
-
-    profilePic: {
-      type: String,
-      default: "null",
-    },
     isAuthenticated: {
       type: Boolean,
-      default: false,
+      default: false
     },
+    profilePic: {
+      type: String,
+      default: "null"
+    }
   },
   { timestamps: true },
 );
 
+// Compare password method
+userSchema.methods.comparePassword = async function (candidatePassword) {
+  try {
+    console.log('Model comparing password for:', this.email);
+    const isMatch = await comparePassword(candidatePassword, this.password);
+    console.log('Model password match:', isMatch);
+    return isMatch;
+  } catch (error) {
+    console.error('Model password comparison error:', error);
+    throw error;
+  }
+};
+
 const authSchema = new mongoose.Schema({
-  user_id: {
+  userId: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true,
     ref: "User",
+    required: true,
   },
   otp: {
     type: String,
+    required: true,
   },
-  expiresIn: {
+  expiresAt: {
     type: Date,
-    default: () => Date.now() + 60000,
-  },
+    required: true,
+  }
 });
 
 export const auth = mongoose.model("Auth", authSchema);
 
-export default mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+
+export default User;

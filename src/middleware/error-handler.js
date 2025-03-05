@@ -1,20 +1,31 @@
-import createHttpError from "http-errors";
+import { StatusCodes } from 'http-status-codes';
 
-/**
- * handle error throw in any of the function 
- * @param {*} err throw error object
- * @param {*} req Request object 
- * @param {*} res Response object
- * @param {*} next Next function object
- * @returns errors response 
- */
+const errorHandler = (err, req, res, next) => {
+    // If response is already sent, pass to default Express error handler
+    if (res.headersSent) {
+        return next(err);
+    }
 
-export const errorHandler = (err, req, res, next) => {
-    console.error(err);
-    if(createHttpError.isHttpError(err)) {
-        return res.status(err.status).send({ errors: [{ message: err.message }] });
+    console.error('Error:', {
+        name: err.name,
+        message: err.message,
+        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
+
+    // Default error response
+    const defaultError = {
+        statusCode: err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
+        message: err.message || 'Something went wrong, try again later',
     };
-    return res.status(500).send({ errors: [{ message: "Internal Server Error" }] });
+
+    // Send error response
+    res.status(defaultError.statusCode).json({
+        success: false,
+        error: {
+            message: defaultError.message,
+            ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+        }
+    });
 };
 
 export default errorHandler;

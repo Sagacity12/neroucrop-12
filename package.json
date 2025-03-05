@@ -27,14 +27,18 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "express-async-errors": "^3.1.1",
-    "express-rate-limit": "^7.5.0",
+    "express-rate-limit": "^7.1.5",
+    "express-session": "^1.18.1",
     "helmet": "^8.0.0",
+    "http-errors": "^2.0.0",
     "http-status-codes": "^2.3.0",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.6",
     "morgan": "^1.10.0",
     "nodemon": "^3.1.9",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
     "ratelimit": "^0.0.4"
   }
 }
