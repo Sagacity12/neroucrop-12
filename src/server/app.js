@@ -11,6 +11,8 @@ const startServer = async () => {
         const app = createExpressApp();
         const server = http.createServer(app);
 
+        app.get('/', (_, res) => { res.json('hello world')})
+
         server.listen(config.server.port, () => {
             logger.info(`Server running on port ${config.server.port}`);
         });
