@@ -41,6 +41,7 @@
     "nodemon": "^3.1.9",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
-    "ratelimit": "^0.0.4"
+    "ratelimit": "^0.0.4",
+    "winston": "^3.17.0"
   }
 }
