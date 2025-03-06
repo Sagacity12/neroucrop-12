@@ -2,11 +2,18 @@ import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
+// Get the directory path and load environment variables
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const envPath = join(__dirname, '..', '..', '.env');
 
-dotenv.config({ path: envPath });
+// Load .env file in development
+if (process.env.NODE_ENV !== 'production') {
+    const result = dotenv.config({ path: envPath });
+    if (result.error) {
+        console.log('Error loading .env file in development:', result.error);
+    }
+}
 
 const config = {
     database: {
@@ -23,7 +30,7 @@ const config = {
         clientId: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         callbackURL: process.env.NODE_ENV === 'production'
-            ? 'https://your-production-domain.com/api/v1/auth/google/callback'
+            ? `${process.env.BACKEND_URL}/api/v1/auth/google/callback`
             : '/api/v1/auth/google/callback'
     }
 };

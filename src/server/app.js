@@ -2,6 +2,7 @@ import createExpressApp from "./createExpressApp.js"
 import http from "http";
 import connectDB from "./dbConnect/dbConnect.js";
 import config from '../config/config.js';
+import logger from '../config/logger.js';
 
 const startServer = async () => {
     try {
@@ -10,13 +11,12 @@ const startServer = async () => {
         const app = createExpressApp();
         const server = http.createServer(app);
 
-        const PORT = config.server.port || 3000;
-        server.listen(PORT, () => {
-            console.log(`Server running on port ${PORT}`);
+        server.listen(config.server.port, () => {
+            logger.info(`Server running on port ${config.server.port}`);
         });
 
     } catch (error) {
-        console.error('✗ Failed to start server:', error.message);
+        logger.error('Failed to start server:', error.message);
         process.exit(1);
     }
 };

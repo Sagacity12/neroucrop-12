@@ -2,17 +2,14 @@ import winston from 'winston';
 
 const logger = winston.createLogger({
     level: 'info',
-    format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.json()
-    ),
+    format: winston.format.printf(({ level, message }) => {
+        // Only return the message without timestamp
+        return `${message}`;
+    }),
     transports: [
         // Write all logs to console
         new winston.transports.Console({
-            format: winston.format.combine(
-                winston.format.colorize(),
-                winston.format.simple()
-            )
+            format: winston.format.simple()
         }),
         // Write production logs to a file
         ...(process.env.NODE_ENV === 'production' ? [
