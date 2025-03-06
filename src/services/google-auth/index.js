@@ -8,18 +8,25 @@ import createHttpError from 'http-errors';
  * Configure Google OAuth Strategy
  */
 export const setupGoogleStrategy = () => {
+    const isProd = process.env.NODE_ENV === 'production';
+    
+    // Use Render's URL for production
+    const callbackURL = isProd
+        ? `${process.env.BACKEND_URL}/api/v1/auth/google/callback`
+        : 'http://localhost:3000/api/v1/auth/google/callback';
+
     passport.use(new GoogleStrategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: "/api/v1/auth/google/callback",
+        callbackURL,
         scope: ['profile', 'email']
     }, handleGoogleCallback));
 
     // Add debug log
-    console.log('Google OAuth URLs:', {
-        auth: '/api/v1/auth/google',
-        callback: '/api/v1/auth/google/callback'
-    });
+   // console.log('Google OAuth URLs:', {
+    //    auth: '/api/v1/auth/google',
+    //    callback: '/api/v1/auth/google/callback'
+    //});
 };
 
 /**
@@ -82,13 +89,11 @@ export const handleGoogleSuccess = async (req, res) => {
     try {
         const token = generateToken(req.user);
         
-        res.status(200).json({
-            success: true,
-            data: {
-                user: req.user,
-                token
-            }
-        });
+        // Always redirect to localhost:5173 
+        const frontendURL = 'http://localhost:5173';
+            
+        // Redirect to frontend with token
+        res.redirect(`${frontendURL}/auth/callback?token=${token}`);
     } catch (error) {
         console.error('Google auth success handler error:', error);
         throw createHttpError(500, 'Error processing Google authentication');

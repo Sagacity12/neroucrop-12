@@ -23,7 +23,13 @@ const createExpressApp = () => {
     app.set("trust proxy", 1);
     app.use(limit);
     app.use(morgan("dev"));
-    app.use(cors());
+    app.use(cors({
+        origin: [
+            'http://localhost:5173',  // frontend dev
+            process.env.FRONTEND_URL  // frontend production
+        ],
+        credentials: true
+    }));
     app.use(helmet());
 
     // Initialize Passport

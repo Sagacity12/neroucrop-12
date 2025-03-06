@@ -1,7 +1,7 @@
 import express from 'express';
 import {
     register,
-    login, sendVerification, verify, logout, getCurrentUser
+    login, sendVerification, verify, logout, getCurrentUser, forgotPassword, handleResetPassword
 } from '../controllers/auth-controller.js';
 import { 
     startGoogleAuth, 
@@ -38,6 +38,10 @@ router.get('/check-email/:email', async (req, res) => {
 // Google OAuth routes
 router.get('/google', startGoogleAuth);
 router.get('/google/callback', handleGoogleCallback, handleGoogleSuccess);
+
+// Password reset routes
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password/:token', handleResetPassword);
 
 // Auth error handler
 router.use(authErrorHandler);

@@ -11,6 +11,16 @@ router.use((req, res, next) => {
     next();
 });
 
+// Health check endpoint
+router.get('/health', (req, res) => {
+    res.status(200).json({
+        status: 'healthy',
+        timestamp: new Date(),
+        uptime: process.uptime(),
+        memory: process.memoryUsage()
+    });
+});
+
 const baseUrl = "/api/v1";
 
 router.use(`${baseUrl}/auth`, authRoutes);

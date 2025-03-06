@@ -1,4 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
+import logger from '../config/logger.js';
 
 const errorHandler = (err, req, res, next) => {
     // If response is already sent, pass to default Express error handler
@@ -6,10 +7,12 @@ const errorHandler = (err, req, res, next) => {
         return next(err);
     }
 
-    console.error('Error:', {
+    logger.error('Error:', {
         name: err.name,
         message: err.message,
-        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
+        path: req.path,
+        method: req.method
     });
 
     // Default error response

@@ -8,6 +8,10 @@ import {
 import createHttpError from 'http-errors';
 import { validateRegister } from '../services/user-services/validation/index.js';
 import { registerUser } from '../services/user-services/index.js';
+import { 
+    generatePasswordResetToken, 
+    resetPassword 
+} from '../services/auth-services/password-reset.js';
 
 /**
  * Handle user login 
@@ -144,6 +148,47 @@ export const register = async (req, res) => {
         });
     } catch (error) {
         console.error('Registration Error:', error);
+        throw error;
+    }
+};
+
+/**
+ * Handle forgot password request
+ */
+export const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+        
+        if (!email) {
+            throw createHttpError(400, 'Email is required');
+        }
+
+        const result = await generatePasswordResetToken(email);
+        
+        res.status(200).json(result);
+    } catch (error) {
+        console.error('Forgot password error:', error);
+        throw error;
+    }
+};
+
+/**
+ * Handle password reset
+ */
+export const handleResetPassword = async (req, res) => {
+    try {
+        const { token } = req.params;
+        const { password } = req.body;
+
+        if (!token || !password) {
+            throw createHttpError(400, 'Token and new password are required');
+        }
+
+        const result = await resetPassword(token, password);
+
+        res.status(200).json(result);
+    } catch (error) {
+        console.error('Reset password error:', error);
         throw error;
     }
 };
