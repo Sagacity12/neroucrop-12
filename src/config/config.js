@@ -2,16 +2,17 @@ import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
-// Get the directory path and load environment variables
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const envPath = join(__dirname, '..', '..', '.env');
-
-// Load .env file in development
+// Only try to load .env file in development
 if (process.env.NODE_ENV !== 'production') {
-    const result = dotenv.config({ path: envPath });
-    if (result.error) {
-        console.log('Error loading .env file in development:', result.error);
+    try {
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = dirname(__filename);
+        const envPath = join(__dirname, '..', '..', '.env');
+        
+        dotenv.config({ path: envPath });
+    } catch (error) {
+        // Silently continue if .env file is not found in development
+        console.log('No .env file found in development');
     }
 }
 
