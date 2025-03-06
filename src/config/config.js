@@ -11,9 +11,23 @@ if (process.env.NODE_ENV !== 'production') {
         
         dotenv.config({ path: envPath });
     } catch (error) {
-        // Silently continue if .env file is not found in development
-        console.log('No .env file found in development');
+        // Silently continue if .env file is not found
+        console.log('No .env file found, using environment variables');
     }
+}
+
+// Check if required environment variables are set
+const requiredEnvVars = ['DB_URI', 'JWT_SECRET'];
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+
+if (missingEnvVars.length > 0) {
+    console.error(`Missing required environment variables: ${missingEnvVars.join(', ')}`);
+    if (process.env.NODE_ENV === 'production') {
+        console.error('Make sure to set these in your Render dashboard under Environment Variables');
+    } else {
+        console.error('Make sure these are set in your .env file or environment');
+    }
+    process.exit(1);
 }
 
 const config = {
@@ -31,18 +45,9 @@ const config = {
         clientId: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         callbackURL: process.env.NODE_ENV === 'production'
-            ? `${process.env.BACKEND_URL}/api/v1/auth/google/callback`
+            ? `${process.env.BACKEND_URL || ''}/api/v1/auth/google/callback`
             : '/api/v1/auth/google/callback'
     }
 };
-
-// Validate required configuration
-const requiredConfig = ['database.uri', 'jwt.secret'];
-for (const path of requiredConfig) {
-    const value = path.split('.').reduce((obj, key) => obj?.[key], config);
-    if (!value) {
-        throw new Error(`Missing required configuration: ${path}`);
-    }
-}
 
 export default config; 
