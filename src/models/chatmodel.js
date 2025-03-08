@@ -17,11 +17,11 @@ const chatSchema = new mongoose.Schema(
                 ref: "User",
                 required: true, // User who sent the message
             },
-            receiver: {
+            receivers: [{  // Change to an array for group chats
                 type: mongoose.Schema.ObjectId,
                 ref: "User",
-                required: true,// User who is the intended recipient of the message
-            },
+                required: true,
+            }],
             content: {
                 type: String,
                 required: true, // Text content of the message
@@ -41,17 +41,6 @@ const chatSchema = new mongoose.Schema(
             read: {
                 type: Boolean,
                 default: false, //Indicates if the message has been read 
-            },
-            createdAt: {
-                type: Date,
-                default: Date.now,
-            },
-        }],
-        typingIndicators: [{
-            user: {
-                type: mongoose.Schema.ObjectId,
-                ref: "User",
-                required: true, // User who is typing
             },
             createdAt: {
                 type: Date,

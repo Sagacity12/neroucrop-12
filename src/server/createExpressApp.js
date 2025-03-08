@@ -4,7 +4,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
-
+import routes from "../routes/index.js";
 
 
 const limit = rateLimit({
@@ -20,6 +20,7 @@ const createExpressApp = () => {
     app.use(morgan("combined"));
     app.use(cors());
     app.use(helmet());
+    app.use(routes);
 
 
 
