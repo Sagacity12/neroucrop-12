@@ -1,20 +1,20 @@
 import createExpressApp from "./createExpressApp.js"
 import http from "http";
 import connectDB from "./dbConnect/dbConnect.js";
-import config from '../config/config.js';
 import logger from '../config/logger.js';
 
 const startServer = async () => {
     try {
-        await connectDB(config.database.uri);
+        await connectDB(process.env.DB_URI);
         
         const app = createExpressApp();
         const server = http.createServer(app);
 
         app.get('/', (_, res) => { res.json('hello world')})
 
-        server.listen(config.server.port, () => {
-            logger.info(`Server running on port ${config.server.port}`);
+        const PORT = process.env.PORT || 3000;
+        server.listen(PORT, () => {
+            logger.info(`Server running on port ${PORT}`);
         });
 
     } catch (error) {

@@ -1,26 +1,13 @@
 import mongoose from "mongoose";
-import logger from '../../config/logger.js';
 
 const connectDB = async (uri) => {
     try {
-        // Simplified logging
-        const conn = await mongoose.connect(uri, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            serverSelectionTimeoutMS: 30000
-        });
-        
-        logger.info('MongoDB Connected');
-        return conn;
+        // Connect with minimal options
+        await mongoose.connect(uri);
+        console.log('MongoDB Connected');
+        return mongoose.connection;
     } catch (error) {
-        // Only log essential error info
-        logger.error(`MongoDB connection failed: ${error.message}`);
-        
-        // In development, show more details
-        if (process.env.NODE_ENV !== 'production') {
-            console.error(error);
-        }
-        
+        console.error(`MongoDB connection failed: ${error.message}`);
         process.exit(1);
     }
 };

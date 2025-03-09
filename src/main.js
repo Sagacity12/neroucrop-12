@@ -1,25 +1,37 @@
+// Load environment variables first, before any other imports
 import dotenv from 'dotenv';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
 
-// Suppress MongoDB deprecation warnings
-process.removeAllListeners('warning');
+// Load environment variables with a relative path
+dotenv.config({ path: '../.env' });
 
-// Get the directory path and load environment variables
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const envPath = join(__dirname, '..', '.env');
+import connectDB from './server/dbConnect/dbConnect.js';
+import createExpressApp from './server/createExpressApp.js';
+import http from 'http';
 
-const result = dotenv.config({ path: envPath });
-
-if (result.error) {
-    console.error('Error loading .env file:', result.error);
-    process.exit(1);
+// Start the server with minimal logging
+async function startServer() {
+    try {
+        // Connect to MongoDB
+        await connectDB(process.env.DB_URI);
+        
+        // Create and configure Express app
+        const app = createExpressApp();
+        const server = http.createServer(app);
+        
+        // Add home route
+        app.get('/', (_, res) => { 
+            res.json({ message: 'AgricSmart API is running' });
+        });
+        
+        // Start server
+        const PORT = process.env.PORT || 3000;
+        server.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        });
+    } catch (error) {
+        console.error('Failed to start server:', error.message);
+        process.exit(1);
+    }
 }
 
-import startServer from './server/app.js';
-
-startServer().catch(error => {
-    console.error('Failed to start application:', error);
-    process.exit(1);
-});
+startServer();
