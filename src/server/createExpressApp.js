@@ -36,6 +36,11 @@ const createExpressApp = () => {
     initializePassport();
     app.use(passport.initialize());
 
+    // Add root route explicitly
+    app.get('/', (req, res) => {
+        res.json({ message: 'AgricSmart API is running' });
+    });
+
     // Routes
     app.use(routes);
 

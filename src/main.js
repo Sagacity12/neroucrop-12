@@ -20,13 +20,11 @@ if (fs.existsSync(envPath)) {
 // For development only - fallback values if environment variables are missing
 if (process.env.NODE_ENV !== 'production') {
   if (!process.env.DB_URI) {
-    console.log('Using development fallback for DB_URI');
-    process.env.DB_URI = 'mongodb+srv://neroucrop:Edward12@moses.tyv67.mongodb.net/neroucrop?retryWrites=true&w=majority&appName=MOSES';
+    console.log('Missing DB_URI environment variable');
   }
   
   if (!process.env.JWT_SECRET) {
-    console.log('Using development fallback for JWT_SECRET');
-    process.env.JWT_SECRET = 'fsTLNIrHOLtQICUpx8i2CJn47XTDCLfz';
+    console.log('Missing JWT_SECRET environment variable');
   }
 }
 
@@ -36,30 +34,66 @@ import connectDB from './server/dbConnect/dbConnect.js';
 import createExpressApp from './server/createExpressApp.js';
 import http from 'http';
 
-// Start the server with proper error handling
-async function startServer() {
+// Create the Express app
+const app = createExpressApp();
+
+// Connect to MongoDB (only once)
+let isConnected = false;
+
+// For Vercel serverless functions
+export default async function handler(req, res) {
+  // Check for required environment variables
+  if (!process.env.DB_URI) {
+    return res.status(500).json({
+      success: false,
+      error: 'Server configuration error: Missing database connection string'
+    });
+  }
+
+  // Connect to MongoDB if not already connected
+  if (!isConnected) {
     try {
-        // Connect to MongoDB
-        await connectDB(process.env.DB_URI);
-        
-        // Create and configure Express app
-        const app = createExpressApp();
-        const server = http.createServer(app);
-        
-        // Add home route
-        app.get('/', (_, res) => { 
-            res.json({ message: 'AgricSmart API is running' });
-        });
-        
-        // Start server
-        const PORT = process.env.PORT || 3000;
-        server.listen(PORT, () => {
-            console.log(`Server running on port ${PORT}`);
-        });
+      await connectDB(process.env.DB_URI);
+      isConnected = true;
+      console.log('MongoDB Connected');
     } catch (error) {
-        console.error('Failed to start server:', error.message);
-        process.exit(1);
+      console.error('MongoDB connection failed:', error.message);
+      return res.status(500).json({ 
+        success: false, 
+        error: 'Database connection failed' 
+      });
     }
+  }
+  
+  // Forward the request to the Express app
+  return app(req, res);
 }
 
-startServer();
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+  const startServer = async () => {
+    try {
+      // Check for required environment variables
+      if (!process.env.DB_URI) {
+        throw new Error('Missing DB_URI environment variable');
+      }
+      
+      // Connect to MongoDB
+      await connectDB(process.env.DB_URI);
+      
+      // Create HTTP server
+      const server = http.createServer(app);
+      
+      // Start server
+      const PORT = process.env.PORT || 3000;
+      server.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+      });
+    } catch (error) {
+      console.error('Failed to start server:', error.message);
+      process.exit(1);
+    }
+  };
+  
+  startServer();
+}
