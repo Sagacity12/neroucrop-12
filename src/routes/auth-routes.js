@@ -46,4 +46,12 @@ router.post('/reset-password/:token', handleResetPassword);
 // Auth error handler
 router.use(authErrorHandler);
 
+// Add this debug route at the top of your auth routes
+router.get('/debug', (req, res) => {
+    res.json({
+        message: 'Auth routes are working',
+        timestamp: new Date().toISOString()
+    });
+});
+
 export default router;

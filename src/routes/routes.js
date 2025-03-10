@@ -12,12 +12,11 @@ router.use((req, res, next) => {
 });
 
 // Health check endpoint
-router.get('/health', (req, res) => {
+router.get('/api/health', (req, res) => {
     res.status(200).json({
         status: 'healthy',
         timestamp: new Date(),
-        uptime: process.uptime(),
-        memory: process.memoryUsage()
+        uptime: process.uptime()
     });
 });
 

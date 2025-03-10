@@ -26,9 +26,12 @@ const createExpressApp = () => {
     app.use(cors({
         origin: [
             'http://localhost:5173',  // frontend dev
-            process.env.FRONTEND_URL  // frontend production
+            process.env.FRONTEND_URL,  // frontend production
+            /\.vercel\.app$/          // allow all vercel.app subdomains
         ],
-        credentials: true
+        credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization']
     }));
     app.use(helmet());
 
