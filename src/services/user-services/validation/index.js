@@ -11,7 +11,7 @@ const registerSchema = Joi.object({
         .max(50)
         .messages({
             'string.base': 'Fullname must be a string',
-            'string.empty': 'Fullname is required',
+            'string.empty': 'Fullname is not required',
             'string.max': 'Fullname cannot be more than 50 characters'
         }),
     username: Joi.string()
