@@ -1,6 +1,7 @@
 import express from "express";
 import authRoutes from './auth-routes.js';
 import notificationRoutes from './notificationRoutes.js';
+import blog from './blog.js'
 
 const router = express.Router();
 
@@ -15,5 +16,7 @@ const baseUrl = "/api/v1";
 
 router.use(`${baseUrl}/auth`, authRoutes);
 router.use(`${baseUrl}/notification`, notificationRoutes);
+router.use(`${baseUrl}/blog`, blog);
+
 
 export default router;

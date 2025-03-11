@@ -21,19 +21,18 @@ const blogSchema = new mongoose.Schema(
                 ref: "User",
                 required: true,
             },
-        content: {
-            type: String,
-            required: true,
-        },
-        createAt: {
-            type: Date,
-            default: Date.now,
-        },
+            content: {
+                type: String,
+                required: true,
+            },
+            createAt: {
+                type: Date,
+                default: Date.now,
+            },
         }],
-        tags: {
-            type: [String],
-            default: [],
-        },
+        tags: [{
+            type:String
+        }],
         categories: {
             type: [String],
             default: [],
