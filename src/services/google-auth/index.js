@@ -13,6 +13,7 @@ const setupGoogleAuth = () => {
         throw new Error('Google OAuth credentials missing');
     }
 
+    // Ensure this matches EXACTLY what's in Google Cloud Console
     const callbackURL = process.env.NODE_ENV === 'production'
         ? 'https://neroucrop-12.vercel.app/api/v1/auth/google/callback'
         : 'http://localhost:3000/api/v1/auth/google/callback';
