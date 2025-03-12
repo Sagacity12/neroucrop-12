@@ -7,11 +7,22 @@
     }
   ],
   "rewrites": [
-    { "source": "/api/v1/auth/google", "destination": "/src/main.js" },
-    { "source": "/api/v1/auth/google/callback", "destination": "/src/main.js" },
-    { "source": "/api/v1/auth/(.*)", "destination": "/src/main.js" },
-    { "source": "/api/(.*)", "destination": "/src/main.js" },
-    { "source": "/(.*)", "destination": "/src/main.js" }
+    { 
+      "source": "/api/v1/auth/google/callback", 
+      "destination": "/src/main.js" 
+    },
+    { 
+      "source": "/api/v1/auth/google", 
+      "destination": "/src/main.js" 
+    },
+    { 
+      "source": "/api/v1/auth/:path*", 
+      "destination": "/src/main.js" 
+    },
+    { 
+      "source": "/api/:path*", 
+      "destination": "/src/main.js" 
+    }
   ],
   "headers": [
     {
