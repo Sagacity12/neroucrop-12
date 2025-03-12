@@ -39,14 +39,26 @@ router.get('/me', requireAuth, getCurrentUser);
 router.post('/logout', requireAuth, logout);
 
 // Google OAuth routes
-router.get('/google', startGoogleAuth);
+router.get('/google', passport.authenticate('google', {
+    scope: ['profile', 'email'],
+    session: false
+}));
+
 router.get('/google/callback', 
     passport.authenticate('google', { 
         session: false,
-        failureRedirect: '/login'
+        failureRedirect: '/auth/error'
     }),
     handleGoogleSuccess
 );
+
+// Add an error route
+router.get('/error', (req, res) => {
+    res.status(401).json({
+        success: false,
+        error: 'Authentication failed'
+    });
+});
 
 // Password reset routes
 router.post('/forgot-password', forgotPassword);

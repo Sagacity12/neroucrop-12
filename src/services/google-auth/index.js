@@ -8,29 +8,36 @@ import createHttpError from 'http-errors';
  * Configure Google OAuth Strategy
  */
 const setupGoogleAuth = () => {
-    // Check if Google OAuth environment variables are set
+    // Verify Google credentials exist
     if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
-        console.warn('Google OAuth credentials not found. Google authentication will not work.');
-        return;
+        throw new Error('Google OAuth credentials missing');
     }
 
-    // Get the callback URL based on environment
     const callbackURL = process.env.NODE_ENV === 'production'
         ? 'https://neroucrop-12.vercel.app/api/v1/auth/google/callback'
         : 'http://localhost:3000/api/v1/auth/google/callback';
 
-    // Configure Google Strategy
     passport.use(
         new GoogleStrategy(
             {
                 clientID: process.env.GOOGLE_CLIENT_ID,
                 clientSecret: process.env.GOOGLE_CLIENT_SECRET,
                 callbackURL: callbackURL,
-                scope: ['profile', 'email']
+                scope: ['profile', 'email'],
+                passReqToCallback: true // This allows us to pass the request object to the callback
             },
-            async (accessToken, refreshToken, profile, done) => {
+            async (req, accessToken, refreshToken, profile, done) => {
                 try {
-                    let user = await User.findOne({ email: profile.emails[0].value });
+                    if (!profile || !profile.emails || !profile.emails[0].value) {
+                        return done(new Error('Invalid profile data from Google'));
+                    }
+
+                    let user = await User.findOne({ 
+                        $or: [
+                            { email: profile.emails[0].value },
+                            { googleId: profile.id }
+                        ]
+                    });
 
                     if (!user) {
                         user = await User.create({
@@ -42,17 +49,20 @@ const setupGoogleAuth = () => {
                             role: 'Buyer',
                             isAuthenticated: true,
                             profilePic: profile.photos?.[0]?.value || '',
-                            googleId: profile.id
+                            googleId: profile.id,
+                            authProvider: 'google'
                         });
                     } else {
+                        // Update existing user with Google info if needed
                         user.googleId = profile.id;
                         user.isAuthenticated = true;
+                        user.authProvider = 'google';
                         await user.save();
-                    } 
+                    }
 
                     return done(null, user);
                 } catch (error) {
-                    return done(error, null);
+                    return done(error);
                 }
             }
         )
@@ -73,11 +83,25 @@ const setupGoogleAuth = () => {
  */
 export const handleGoogleSuccess = async (req, res) => {
     try {
+        if (!req.user) {
+            throw createHttpError(401, 'Authentication failed');
+        }
+
         const token = generateToken(req.user);
-        const frontendURL = 'http://localhost:5173';
-        res.redirect(`${frontendURL}/auth/callback?token=${token}`);
+        const frontendURL = process.env.FRONTEND_URL || 'http://localhost:5173';
+
+        // Redirect with token in query params
+        const redirectURL = new URL('/auth/callback', frontendURL);
+        redirectURL.searchParams.set('token', token);
+        
+        res.redirect(redirectURL.toString());
     } catch (error) {
-        throw createHttpError(500, 'Error processing Google authentication');
+        // Redirect to frontend with error
+        const frontendURL = process.env.FRONTEND_URL || 'http://localhost:5173';
+        const redirectURL = new URL('/auth/error', frontendURL);
+        redirectURL.searchParams.set('error', error.message);
+        
+        res.redirect(redirectURL.toString());
     }
 };
 
@@ -94,14 +118,11 @@ export const initializePassport = () => {
             const user = await User.findById(id);
             done(null, user);
         } catch (error) {
-            done(error, null);
+            done(error);
         }
     });
 
-    // Only set up Google auth if credentials exist
-    if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
-        setupGoogleAuth();
-    }
+    setupGoogleAuth();
 };
 
 export default setupGoogleAuth; 
