@@ -1,5 +1,5 @@
-// import Chat from "../models/Chat.js";
 import * as chatService from "../services/chatServices.js";
+import { getIo } from "../server/createSocketServer.js";
 
 // Create a new chat
 export const createChat = async (req, res) => {
@@ -17,9 +17,14 @@ export const sendMessage = async (req, res) => {
     try {
         const { chatId, sender, receiver, content, media } = req.body;
         const message = await chatService.sendMessage(chatId, sender, receiver, content, media);
+        console.log("Saved message",message);
+        // Broadcast the message via WebSocket
+        getIo().to(chatId).emit("receiveMessage", message);
+        console.log("message emitted",message);
         res.status(201).json(message);
     } catch (error) {
         res.status(500).json({ message: error.message });
+        console.log("Error sending message",error);
     }
 };
 
@@ -28,6 +33,7 @@ export const getUserChats = async (req, res) => {
     try {
         const { userId } = req.params;
         const chats = await chatService.getUserChats(userId);
+        console.log("userChats", chats);
         res.status(200).json(chats);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -42,6 +48,7 @@ export const getChatMessages = async (req, res) => {
         res.status(200).json(messages);
     } catch (error) {
         res.status(500).json({ message: error.message });
+        console.log("Error fetching chatMessages", error);
     }
 };
 
@@ -50,18 +57,25 @@ export const updateMessageStatus = async (req, res) => {
     try {
         const { chatId, messageId, status } = req.body;
         const updatedMessage = await chatService.updateMessageStatus(chatId, messageId, status);
+
+        // Broadcast status update
+        getIo().to(chatId).emit("messageStatusUpdated", {
+            messageId,
+            status
+        });
         res.status(200).json(updatedMessage);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
 
-// Handle typing indicators
+// Handle typing indicators (No DB storage needed - pure WebSocket)
 export const handleTypingIndicator = async (req, res) => {
     try {
         const { chatId, userId } = req.body;
-        const typingIndicator = await chatService.handleTypingIndicator(chatId, userId);
-        res.status(200).json(typingIndicator);
+        // Simply broadcast typing indicator
+        getIo().to(chatId).emit("typingIndicator", userId);
+        res.status(200).json({ success: true });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

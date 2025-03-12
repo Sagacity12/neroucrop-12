@@ -1,9 +1,9 @@
 import Chat from "../models/chatmodel.js";
 
 // Create a new chat
-export const createChat = async (users, groupChat = false) => {
-    const chat = new Chat({ users, groupChat });
-    await chat.save();
+export const createChat = async (users, groupChat) => {
+    const chat = await Chat.create({ users: users, groupChat: groupChat });
+    chat.save();
     return chat;
 };
 
@@ -32,7 +32,7 @@ export const getUserChats = async (userId) => {
 
 // Get messages in a chat
 export const getChatMessages = async (chatId) => {
-    const chat = await Chat.findById(chatId).populate("messages.sender messages.receiver", "name email");
+    const chat = await Chat.findById(chatId)
     if (!chat) throw new Error("Chat not found");
     return chat.messages;
 };

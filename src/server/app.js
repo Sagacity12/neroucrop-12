@@ -1,13 +1,18 @@
 import createExpressApp from "./createExpressApp.js"
 import http from "http";
 import connectDB from "./dbConnect/dbConnect.js";
-import { initializeSocket } from "../utils/socket.js";
+import config from '../config/config.js';
+import logger from '../config/logger.js';
+import { initializeSocket } from "./createSocketServer.js";
 
 
 const startServer = async () => {
     await connectDB(process.env.DB_URI);
 
-    const app = createExpressApp();
+        // Initialize WebSocket
+        initializeSocket(server);
+
+        app.get('/', (_, res) => { res.json('hello world')})
 
     const server = http.createServer(app);
 

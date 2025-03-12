@@ -12,7 +12,7 @@ const router = express.Router();
 
 // Chat routes
 router.post("/", createChat);
-router.post("/:chatId/messages", sendMessage);
+router.post("/messages", sendMessage);
 router.get("/user/:userId", getUserChats);
 router.get("/:chatId/messages", getChatMessages);
 router.put("/:chatId/messages/:messageId", updateMessageStatus);
