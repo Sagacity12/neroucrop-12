@@ -89,8 +89,10 @@ export const handleGoogleSuccess = async (req, res) => {
         }
 
         const token = generateToken(req.user);
-        const frontendURL = process.env.FRONTEND_URL || 'http://localhost:5173';
-
+        
+        // Always redirect to localhost:5173 since that's our only frontend
+        const frontendURL = 'http://localhost:5173';
+        
         // Redirect with token in query params
         const redirectURL = new URL('/auth/callback', frontendURL);
         redirectURL.searchParams.set('token', token);
@@ -98,7 +100,7 @@ export const handleGoogleSuccess = async (req, res) => {
         res.redirect(redirectURL.toString());
     } catch (error) {
         // Redirect to frontend with error
-        const frontendURL = process.env.FRONTEND_URL || 'http://localhost:5173';
+        const frontendURL = 'http://localhost:5173';
         const redirectURL = new URL('/auth/error', frontendURL);
         redirectURL.searchParams.set('error', error.message);
         
