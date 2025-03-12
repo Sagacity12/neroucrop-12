@@ -39,9 +39,10 @@ router.get('/me', requireAuth, getCurrentUser);
 router.post('/logout', requireAuth, logout);
 
 // Google OAuth routes
-router.post('/google', passport.authenticate('google', {
+router.get('/google', passport.authenticate('google', {
     scope: ['profile', 'email'],
-    session: false
+    session: false,
+    prompt: 'select_account'
 }));
 
 router.get('/google/callback', 
