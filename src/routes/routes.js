@@ -5,7 +5,7 @@ import chatRoutes from "./chatRoutes.js"
 
 const router = express.Router();
 
-// Debug middleware
+// Debug middleware to log requests
 router.use((req, res, next) => {
     console.log('Request URL:', req.url);
     console.log('Request Method:', req.method);

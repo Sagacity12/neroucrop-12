@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "src/main.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "rewrites": [
+    { 
+      "source": "/api/v1/auth/google/callback", 
+      "destination": "/src/main.js" 
+    },
+    { 
+      "source": "/api/v1/auth/google", 
+      "destination": "/src/main.js" 
+    },
+    { 
+      "source": "/api/v1/auth/:path*", 
+      "destination": "/src/main.js" 
+    },
+    { 
+      "source": "/api/:path*", 
+      "destination": "/src/main.js" 
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "http://localhost:5173" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization" },
+        { "key": "Access-Control-Allow-Credentials", "value": "true" }
+      ]
+    }
+  ]
+} 

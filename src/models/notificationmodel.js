@@ -10,7 +10,7 @@ const notificationSchema = new mongoose.Schema(
         type: {
             type: String,
             enum: ["message", "purchase", "system"], // Types of notification
-            requored: true,
+            required: true,
         },
         content: {
             type: String,
@@ -19,10 +19,6 @@ const notificationSchema = new mongoose.Schema(
         isRead: {
             type: Boolean,
             default: false, //Indicates if the notification has been read 
-        },
-        createdAt: {
-            type: Date,
-            default: Date.now, // Timestamp for when the notificationwas created
         },
     },
     { timestamps: true }

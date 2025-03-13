@@ -49,6 +49,13 @@ const createExpressApp = () => {
         res.status(404).send({ errors: [{ message: "Resource not found" }] });
     });
 
+    // Routes
+    app.use(routes);
+
+    // Error handling
+    app.use(notFoundMiddleware);
+    app.use(errorHandler);
+
     return app;
 };
 
