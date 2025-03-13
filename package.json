@@ -5,7 +5,11 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+<<<<<<< HEAD
+    "start": "nodemon ./src/main.js",
+=======
     "start": "node ./src/main.js",
+>>>>>>> e11db4c566438c77901b1988d6ad8366365050e1
     "dev": "nodemon --quiet ./src/main.js"
   },
   "repository": {
@@ -39,9 +43,14 @@
     "morgan": "^1.10.0",
     "nodemailer": "^6.10.0",
     "nodemon": "^3.1.9",
+<<<<<<< HEAD
+    "ratelimit": "^0.0.4",
+    "socket.io": "^4.8.1",
+=======
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "ratelimit": "^0.0.4",
+>>>>>>> e11db4c566438c77901b1988d6ad8366365050e1
     "winston": "^3.17.0"
   }
 }

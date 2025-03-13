@@ -1,6 +1,7 @@
 import express from "express";
 import authRoutes from './auth-routes.js';
 import notificationRoutes from './notificationRoutes.js';
+import chatRoutes from "./chatRoutes.js"
 
 const router = express.Router();
 
@@ -11,20 +12,21 @@ router.use((req, res, next) => {
     next();
 });
 
-// Base API routes
-const baseUrl = "/api/v1";
-
-// Mount routes
-router.use(`${baseUrl}/auth`, authRoutes);
-router.use(`${baseUrl}/notification`, notificationRoutes);
-
 // Health check endpoint
 router.get('/health', (req, res) => {
     res.status(200).json({
         status: 'healthy',
         timestamp: new Date(),
-        uptime: process.uptime()
+        uptime: process.uptime(),
+        memory: process.memoryUsage()
     });
 });
+
+const baseUrl = "/api/v1";
+
+router.use(`${baseUrl}/auth`, authRoutes);
+router.use(`${baseUrl}/notification`, notificationRoutes);
+router.use(`${baseUrl}/chat`, chatRoutes);
+
 
 export default router;
