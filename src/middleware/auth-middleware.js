@@ -91,3 +91,15 @@ export const requireAuth = async (req, res, next) => {
         }
     }
 }; 
+
+export const requireRole = async (req, res, next) => {
+    try{
+        const { role } = req.user;
+        if (role !== 'Seller') {
+            throw new UnauthenticatedError('Unauthorized access');
+        }
+        next();
+    } catch (error) {
+        next(error);
+    }
+}
