@@ -15,6 +15,7 @@ import {
 } from '../services/marketService.js';
 import { formatProductResponse, formatOrderResponse } from '../helpers/markethelper.js';
 import logger from '../config/logger.js';
+import { sendOrderNotification } from '../services/notificationService.js';
 
 /**
  * Create a new product
@@ -240,6 +241,14 @@ export const createNewOrder = async (req, res) => {
         
         const order = await createOrder(orderData);
         
+        // After order creation, send notification to seller
+        try {
+            await sendOrderNotification('new-order', order._id);
+        } catch (notificationError) {
+            // Log but don't fail the order if notification fails
+            logger.error(`Failed to send order notification: ${notificationError.message}`);
+        }
+        
         res.status(201).json({
             success: true,
             data: formatOrderResponse(order)
@@ -369,6 +378,19 @@ export const updateOrderStatusHandler = async (req, res) => {
         const sellerId = req.user._id;
         
         const order = await updateOrderStatus(orderId, sellerId, status);
+        
+        // After order status update, send notification to buyer
+        try {
+            await sendOrderNotification('order-status-update', order._id);
+        } catch (notificationError) {
+            // Log but don't fail the update if notification fails
+            logger.error(`Failed to send order status notification: ${notificationError.message}`);
+        }
+        
+        // If the order status was changed to "processing", this implies the seller has "approved" the order
+        if (status === 'processing') {
+            logger.info(`Order ${orderId} has been approved by seller ${sellerId}`);
+        }
         
         res.status(200).json({
             success: true,
