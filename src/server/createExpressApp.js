@@ -24,18 +24,14 @@ const createExpressApp = () => {
     app.use(limit);
     app.use(morgan("dev"));
     app.use(cors({
-        origin: [
-            'http://localhost:5173',  // frontend dev
-            process.env.FRONTEND_URL,  // frontend production
-            /\.vercel\.app$/          // allow all vercel.app subdomains
-        ],
+        origin: ['http://localhost:5173'],
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization']
     }));
     app.use(helmet());
 
-    // Initialize Passport
+    // Initialize Passport without session support
     initializePassport();
     app.use(passport.initialize());
 

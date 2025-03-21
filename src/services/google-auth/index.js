@@ -25,7 +25,8 @@ const setupGoogleAuth = () => {
                 clientSecret: process.env.GOOGLE_CLIENT_SECRET,
                 callbackURL: callbackURL,
                 scope: ['profile', 'email'],
-                passReqToCallback: true // This allows us to pass the request object to the callback
+                passReqToCallback: true,
+                session: false
             },
             async (req, accessToken, refreshToken, profile, done) => {
                 try {
@@ -68,15 +69,6 @@ const setupGoogleAuth = () => {
             }
         )
     );
-
-    // User serialization/deserialization code
-    passport.serializeUser((user, done) => {
-        done(null, user);
-    });
-
-    passport.deserializeUser((obj, done) => {
-        done(null, obj);
-    });
 };
 
 /**
@@ -90,10 +82,8 @@ export const handleGoogleSuccess = async (req, res) => {
 
         const token = generateToken(req.user);
         
-        // Always redirect to localhost:5173 since that's our only frontend
+        // Redirect with JWT token in query params
         const frontendURL = 'http://localhost:5173';
-        
-        // Redirect with token in query params
         const redirectURL = new URL('/auth/callback', frontendURL);
         redirectURL.searchParams.set('token', token);
         
@@ -112,19 +102,6 @@ export const handleGoogleSuccess = async (req, res) => {
  * Initialize Passport configuration
  */
 export const initializePassport = () => {
-    passport.serializeUser((user, done) => {
-        done(null, user.id);
-    });
-
-    passport.deserializeUser(async (id, done) => {
-        try {
-            const user = await User.findById(id);
-            done(null, user);
-        } catch (error) {
-            done(error);
-        }
-    });
-
     setupGoogleAuth();
 };
 

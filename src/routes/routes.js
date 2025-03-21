@@ -1,6 +1,9 @@
 import express from "express";
 import authRoutes from './auth-routes.js';
 import notificationRoutes from './notificationRoutes.js';
+import aiRoutes from './aiRoutes.js';
+import paymentRoutes from './paymentRoutes.js';
+import marketRoutes from './marketRoutes.js';
 
 const router = express.Router();
 
@@ -17,6 +20,9 @@ const baseUrl = "/api/v1";
 // Mount routes
 router.use(`${baseUrl}/auth`, authRoutes);
 router.use(`${baseUrl}/notification`, notificationRoutes);
+router.use(`${baseUrl}/ai`, aiRoutes);
+router.use(`${baseUrl}/payments`, paymentRoutes);
+router.use(`${baseUrl}/market`, marketRoutes);
 
 // Health check endpoint
 router.get('/health', (req, res) => {
