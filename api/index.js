@@ -22,7 +22,7 @@ app.use((req, res, next) => {
 });
 
 // Initialize database connection
-let dbConnected = false;
+let dbConnected = true;
 
 // Add this near the top of your file
 const logDbUri = () => {
