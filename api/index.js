@@ -24,23 +24,59 @@ app.use((req, res, next) => {
 // Initialize database connection
 let dbConnected = false;
 
-// Use the imported connectDB function instead of connectToDatabase
+// Add this near the top of your file
+const logDbUri = () => {
+  if (!process.env.DB_URI) {
+    console.log('DB_URI is not defined in environment variables');
+    return;
+  }
+  
+  // Mask the password in the connection string for security
+  const maskedUri = process.env.DB_URI.replace(/:([^:@]+)@/, ':****@');
+  console.log(`DB_URI is set to: ${maskedUri}`);
+  
+  // Log if the URI format looks correct
+  const uriPattern = /^mongodb(\+srv)?:\/\/.+:.+@.+\/.+(\?.+)?$/;
+  console.log(`DB_URI format is ${uriPattern.test(process.env.DB_URI) ? 'valid' : 'invalid'}`);
+};
+
+// Call this function before attempting connection
+logDbUri();
+
+// Then in your connection code
 try {
   console.log('Attempting database connection...');
-  connectDB(process.env.DB_URI)
+  
+  // Add timeout for better debugging
+  const connectionPromise = connectDB(process.env.DB_URI);
+  
+  // Log after 5 seconds if connection is still pending
+  const timeoutId = setTimeout(() => {
+    console.log('Database connection is taking longer than 5 seconds...');
+  }, 5000);
+  
+  connectionPromise
     .then(connection => {
+      clearTimeout(timeoutId);
       if (connection) {
         dbConnected = true;
         console.log('Database connection successful');
+        // Log connection details
+        console.log(`Connected to: ${connection.name}`);
+        console.log(`Connection state: ${connection.readyState}`);
       } else {
-        console.log('Database connection failed');
+        console.log('Database connection failed - connection object is null');
       }
     })
     .catch(err => {
+      clearTimeout(timeoutId);
       console.error('Database connection error:', err);
+      console.error('Error name:', err.name);
+      console.error('Error message:', err.message);
+      if (err.stack) console.error('Error stack:', err.stack);
     });
 } catch (error) {
-  console.error('Exception during database connection:', error);
+  console.error('Exception during database connection setup:', error);
 }
 
 // Root route
