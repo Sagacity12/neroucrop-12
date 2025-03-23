@@ -8,8 +8,12 @@
   },
   "routes": [
     {
+      "src": "/api/diagnostics/(.*)",
+      "dest": "/api/diagnostics.js"
+    },
+    {
       "src": "/(.*)",
-      "dest": "/api/index-simple.js"
+      "dest": "/api/index.js"
     }
   ]
 } 
