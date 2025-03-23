@@ -2,7 +2,7 @@
 import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
-import { connectToDatabase } from './db.js';
+import connectDB from '../src/server/dbConnect/dbConnect.js';
 
 // Create Express app
 const app = express();
@@ -23,14 +23,25 @@ app.use((req, res, next) => {
 
 // Initialize database connection
 let dbConnected = false;
-connectToDatabase()
-  .then(client => {
-    if (client) {
-      dbConnected = true;
-      console.log('Database connection initialized in index.js');
-    }
-  })
-  .catch(err => console.error('Failed to initialize database connection:', err));
+
+// Use the imported connectDB function instead of connectToDatabase
+try {
+  console.log('Attempting database connection...');
+  connectDB(process.env.DB_URI)
+    .then(connection => {
+      if (connection) {
+        dbConnected = true;
+        console.log('Database connection successful');
+      } else {
+        console.log('Database connection failed');
+      }
+    })
+    .catch(err => {
+      console.error('Database connection error:', err);
+    });
+} catch (error) {
+  console.error('Exception during database connection:', error);
+}
 
 // Root route
 app.get('/', (req, res) => {
