@@ -394,5 +394,11 @@ const seedEducationData = async () => {
   }
 };
 
-// Run the seed function
-seedEducationData(); 
+// Export the function for importing elsewhere
+export { seedEducationData };
+
+// Run the seed function if this file is executed directly
+const isMainModule = process.argv[1] === fileURLToPath(import.meta.url);
+if (isMainModule) {
+  seedEducationData();
+} 

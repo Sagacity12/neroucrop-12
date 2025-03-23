@@ -5,6 +5,7 @@ import aiRoutes from './aiRoutes.js';
 import paymentRoutes from './paymentRoutes.js';
 import marketRoutes from './marketRoutes.js';
 import educationRoutes from './educationRoutes.js';
+import adminRoutes from './adminRoutes.js';
 
 const router = express.Router();
 
@@ -25,6 +26,7 @@ router.use(`${baseUrl}/ai`, aiRoutes);
 router.use(`${baseUrl}/payments`, paymentRoutes);
 router.use(`${baseUrl}/market`, marketRoutes);
 router.use(`${baseUrl}/education`, educationRoutes);
+router.use(`${baseUrl}/admin`, adminRoutes);
 
 // Health check endpoint
 router.get('/health', (req, res) => {
