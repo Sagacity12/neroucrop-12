@@ -10,6 +10,12 @@ export async function connectToDatabase() {
   }
 
   try {
+    // Log the DB_URI (with password masked for security)
+    const maskedUri = process.env.DB_URI 
+      ? process.env.DB_URI.replace(/:([^:@]+)@/, ':****@')
+      : 'undefined';
+    console.log(`Attempting to connect to MongoDB with URI: ${maskedUri}`);
+
     if (!process.env.DB_URI) {
       console.log('No DB_URI provided, skipping database connection');
       return null;
@@ -31,7 +37,12 @@ export async function connectToDatabase() {
     console.log('MongoDB connected successfully');
     return client;
   } catch (error) {
-    console.error('MongoDB connection error:', error);
+    console.error('MongoDB connection error details:', {
+      name: error.name,
+      message: error.message,
+      code: error.code,
+      stack: error.stack
+    });
     return null;
   }
 } 
