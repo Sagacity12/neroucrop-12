@@ -6,21 +6,21 @@ import createHttpError from 'http-errors';
  * @type {Joi.ObjectSchema}
  */
 const registerSchema = Joi.object({
-    fullname: Joi.string()
+    firstname: Joi.string()
         .required()
         .max(50)
         .messages({
-            'string.base': 'Fullname must be a string',
-            'string.empty': 'Fullname is not required',
-            'string.max': 'Fullname cannot be more than 50 characters'
+            'string.base': 'Firstname must be a string',
+            'string.empty': 'Firstname is required',
+            'string.max': 'Firstname cannot be more than 50 characters'
         }),
-    username: Joi.string()
+    lastname: Joi.string()
         .required()
         .max(50)
         .messages({
-            'string.base': 'Username must be a string',
-            'string.empty': 'Username is required',
-            'string.max': 'Username cannot be more than 50 characters'
+            'string.base': 'Lastname must be a string',
+            'string.empty': 'Lastname is required',
+            'string.max': 'Lastname cannot be more than 50 characters'
         }),
     email: Joi.string()
         .email()
@@ -30,9 +30,10 @@ const registerSchema = Joi.object({
             'string.empty': 'Email is required'
         }),
     phone: Joi.string()
-        .required()
+        .optional()
+        .allow('')
         .messages({
-            'string.empty': 'Phone number is required'
+            'string.base': 'Phone number must be a string'
         }),
     password: Joi.string()
         .min(8)
@@ -43,7 +44,8 @@ const registerSchema = Joi.object({
         }),
     role: Joi.string()
         .valid('Admin', 'Seller', 'Buyer', 'Educator')
-        .required()
+        .default('Admin')
+        .optional()
         .messages({
             'any.only': 'Role must be either Admin, Seller, Buyer, or Educator'
         })

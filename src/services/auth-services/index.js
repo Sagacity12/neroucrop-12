@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
 import crypto from 'crypto';
 import User from '../../models/usermodel.js';
-import { auth } from '../../models/usermodel.js';
+import Auth from '../../models/authmodel.js';
 import { UnauthenticatedError } from '../../errors/unauthenticated.js';
 import createHttpError from 'http-errors';
 import { comparePassword, generateToken } from '../../helpers/index-helpers.js';
@@ -114,10 +114,10 @@ export const sendVerificationOTP = async (userId) => {
     const otp = generateOTP();
     
     // Clear existing auth records
-    await auth.deleteMany({ userId });
+    await Auth.deleteMany({ userId });
 
     // Create new auth record
-    await auth.create({
+    await Auth.create({
         userId,
         otp,
         expiresAt: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
@@ -138,7 +138,7 @@ export const sendVerificationOTP = async (userId) => {
  */
 export const verifyOTP = async (userId, otp) => {
     // Find the auth record with matching userId and OTP
-    const authRecord = await auth.findOne({
+    const authRecord = await Auth.findOne({
         userId,
         otp,
         expiresAt: { $gt: new Date() }  // Make sure OTP hasn't expired
@@ -156,7 +156,7 @@ export const verifyOTP = async (userId, otp) => {
     );
 
     // Remove the used OTP
-    await auth.deleteOne({ _id: authRecord._id });
+    await Auth.deleteOne({ _id: authRecord._id });
 
     // Generate new token
     const token = generateToken(user);

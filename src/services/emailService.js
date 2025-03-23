@@ -131,7 +131,7 @@ AgricSmart Team
             const subject = `Order #${order._id} ${statusText[order.orderStatus] || 'Updated'}`;
             
             const text = `
-Dear ${buyer.fullname},
+Dear ${buyer.firstname},
 
 Your order #${order._id} has been ${statusText[order.orderStatus] || 'updated'}.
 
@@ -173,7 +173,7 @@ AgricSmart Team
             const subject = `Payment Received for Order #${order._id}`;
             
             const text = `
-Dear ${seller.fullname},
+Dear ${seller.firstname},
 
 You have received payment for order #${order._id}.
 
@@ -197,4 +197,133 @@ AgricSmart Team
                 text: `There has been an update to your order #${order._id}. Please log in to your account for details.`
             };
     }
+};
+
+/**
+ * Generate education notification email content
+ * @param {string} type - Notification type: enrollment, completion, certificate
+ * @param {Object} data - Course and user data
+ * @returns {Object} Email subject and content
+ */
+export const generateEducationEmailContent = (type, data) => {
+  const { course, user, certificate } = data;
+  
+  switch (type) {
+    case 'enrollment': {
+      // Email for course enrollment confirmation
+      const subject = `Welcome to ${course.title}`;
+      
+      const text = `
+Dear ${user.firstname},
+
+Congratulations on enrolling in "${course.title}"!
+
+Course Details:
+- Duration: ${course.duration / (60 * 24 * 7)} weeks
+- Level: ${course.level}
+- Instructor: ${course.instructor.firstname} ${course.instructor.lastname}
+
+You can start learning right away by visiting your course dashboard:
+https://agricsmart.com/education/courses/${course.slug}
+
+What you'll learn:
+${course.modules.map(module => `- ${module.title}`).join('\n')}
+
+We're excited to have you on this learning journey!
+
+Best regards,
+The AgricSmart Education Team
+      `;
+      
+      return { subject, text };
+    }
+    
+    case 'completion': {
+      // Email for course completion
+      const subject = `Congratulations on Completing ${course.title}`;
+      
+      const text = `
+Dear ${user.firstname},
+
+Congratulations on successfully completing "${course.title}"!
+
+This is a significant achievement and demonstrates your commitment to advancing your agricultural knowledge and skills.
+
+Your certificate of completion is now available. You can view and download it from your dashboard:
+https://agricsmart.com/education/certificates
+
+Key skills you've gained:
+${course.tags.map(tag => `- ${tag.charAt(0).toUpperCase() + tag.slice(1)}`).join('\n')}
+
+We hope you found the course valuable and encourage you to explore our other offerings to continue your learning journey.
+
+Best regards,
+The AgricSmart Education Team
+      `;
+      
+      return { subject, text };
+    }
+    
+    case 'certificate': {
+      // Email for certificate generation
+      const subject = `Your Certificate for ${course.title}`;
+      
+      const text = `
+Dear ${user.firstname},
+
+Your certificate for completing "${course.title}" has been generated!
+
+Certificate Details:
+- Certificate ID: ${certificate.certificateId}
+- Issue Date: ${new Date(certificate.issueDate).toLocaleDateString()}
+- Course: ${course.title}
+
+You can view and download your certificate using this link:
+${certificate.verificationLink}
+
+This certificate verifies that you have successfully completed all course requirements and demonstrates your proficiency in this subject area.
+
+You can share this certificate on your professional profiles or with potential employers to showcase your agricultural expertise.
+
+Congratulations again on your achievement!
+
+Best regards,
+The AgricSmart Education Team
+      `;
+      
+      return { subject, text };
+    }
+    
+    default:
+      return {
+        subject: `AgricSmart Education Update`,
+        text: `There has been an update to your course "${course.title}". Please log in to your account for details.`
+      };
+  }
+};
+
+/**
+ * Send education notification email
+ * @param {string} type - Notification type: enrollment, completion, certificate
+ * @param {Object} data - Course and user data
+ * @returns {Promise<Object>} Email send result
+ */
+export const sendEducationEmail = async (type, data) => {
+  try {
+    const { user } = data;
+    
+    // Generate email content
+    const { subject, text } = generateEducationEmailContent(type, data);
+    
+    // Send email
+    return await sendEmail({
+      to: user.email,
+      subject,
+      text
+    });
+  } catch (error) {
+    logger.error(`Error sending education email: ${error.message}`);
+    // Don't throw error to prevent disrupting the main flow
+    return { error: error.message };
+  }
 }; 

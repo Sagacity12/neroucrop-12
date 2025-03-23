@@ -42,13 +42,18 @@ const setupGoogleAuth = () => {
                     });
 
                     if (!user) {
+                        // Split display name into first and last name
+                        const nameParts = profile.displayName.split(' ');
+                        const firstname = nameParts[0] || '';
+                        const lastname = nameParts.slice(1).join(' ') || '';
+
                         user = await User.create({
-                            fullname: profile.displayName,
+                            firstname,
+                            lastname,
                             email: profile.emails[0].value,
-                            username: profile.emails[0].value.split('@')[0],
                             phone: '',
                             password: '',
-                            role: 'Buyer',
+                            role: 'Admin',
                             isAuthenticated: true,
                             profilePic: profile.photos?.[0]?.value || '',
                             googleId: profile.id,

@@ -1,100 +1,94 @@
-//import { ref, required } from "joi";
 import mongoose from "mongoose";
 import { comparePassword } from '../helpers/index-helpers.js';
+//import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema(
   {
-    fullname: {
+    firstname: {
       type: String,
-      required: [false, "Fullname is required"],
+      required: [true, 'Please provide a firstname'],
+      maxlength: 50,
       trim: true,
     },
-    username: {
+    lastname: {
       type: String,
-      required: [true, "Username is required"],
-      unique: true,
+      maxlength: 50,
       trim: true,
+      required: [true, 'Please provide a lastname'],
+    },
+    //  fullname field temporarily for backward compatibility
+    fullname: {
+      type: String,
+      required: false,
+      sparse: true, // Allow null values without uniqueness conflicts
     },
     email: {
       type: String,
-      required: [true, "Email is required"],
+      required: [true, 'Please provide an email'],
+      match: [
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+        'Please provide a valid email',
+      ],
       unique: true,
-      trim: true,
-      lowercase: true,
     },
     phone: {
       type: String,
-      required: [true, "Phone number is required"],
-      unique: true,
+      default: '',
     },
     googleId: {
       type: String,
-      sparse: true
     },
     password: {
       type: String,
-      required: function() {
-        // Password only required if not using OAuth
-        return !this.googleId;
-      },
-      select: false,
+      required: [true, 'Please provide a password'],
+      minlength: 8,
     },
     role: {
       type: String,
-      enum: ["Admin", "Seller", "Buyer", "Educator"],
-      required: true,
+      enum: ['Admin', 'Seller', 'Buyer', 'Educator'],
+      default: 'Admin', // Default role is Admin
     },
     isAuthenticated: {
       type: Boolean,
-      default: false
+      default: false,
     },
     profilePic: {
       type: String,
-      default: "null"
+      default: '',
     },
-    resetPasswordToken: {
+    authProvider: {
       type: String,
-      select: false
+      enum: ['local', 'google'],
+      default: 'local',
     },
-    resetPasswordExpires: {
-      type: Date,
-      select: false
-    }
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
+    verificationOTP: String,
+    verificationOTPExpires: Date,
   },
   { timestamps: true },
 );
 
-// Compare password method
-userSchema.methods.comparePassword = async function (candidatePassword) {
-  try {
-    console.log('Model comparing password for:', this.email);
-    const isMatch = await comparePassword(candidatePassword, this.password);
-    console.log('Model password match:', isMatch);
-    return isMatch;
-  } catch (error) {
-    console.error('Model password comparison error:', error);
-    throw error;
+// a pre-save hook to generate fullname from firstname and lastname
+userSchema.pre('save', function(next) {
+  if (this.firstname && this.lastname) {
+    this.fullname = `${this.firstname} ${this.lastname}`;
   }
-};
-
-const authSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
-  otp: {
-    type: String,
-    required: true,
-  },
-  expiresAt: {
-    type: Date,
-    required: true,
-  }
+  next();
 });
 
-export const auth = mongoose.model("Auth", authSchema);
+// Instead of using both unique: true in the schema and this explicit index,
+// I'll just use the explicit index for more control
+// userSchema.index({ email: 1 }, { unique: true });
 
-const User = mongoose.model("User", userSchema);
+// Create index for googleId
+userSchema.index({ googleId: 1 });
+
+// Compare password method
+userSchema.methods.comparePassword = async function (candidatePassword) {
+  return await comparePassword(candidatePassword, this.password);
+};
+
+const User = mongoose.model('User', userSchema);
 
 export default User;

@@ -13,24 +13,27 @@ import createHttpError from "http-errors";
 export const registerUser = async (userData) => {
     validateRegister(userData);
 
-    const { fullname, username, email, phone, password, role } = userData;
+    // Extract the provided fields
+    const { firstname, lastname, email, password } = userData;
 
-    const existingUser = await User.findOne({
-        $or: [{ email }, { username }, { phone }]
-    });
-
+    // Check if user with this email already exists
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
-        if (existingUser.email === email) throw createHttpError(400, 'Email already registered');
-        if (existingUser.username === username) throw createHttpError(400, 'Username already taken');
-        if (existingUser.phone === phone) throw createHttpError(400, 'Phone number already registered');
+        throw createHttpError(400, 'Email already registered');
     }
 
     console.log('Hashing password for registration...');
     const hashedPassword = await hashPassword(password);
 
+    // Create user with defaults for missing fields
     const user = await User.create({
-        ...userData,
+        firstname,
+        lastname,
+        fullname: `${firstname} ${lastname}`,
+        email,
+        phone: userData.phone || '',
         password: hashedPassword,
+        role: userData.role || 'Admin',
         isAuthenticated: true 
     });
 

@@ -4,6 +4,7 @@ import notificationRoutes from './notificationRoutes.js';
 import aiRoutes from './aiRoutes.js';
 import paymentRoutes from './paymentRoutes.js';
 import marketRoutes from './marketRoutes.js';
+import educationRoutes from './educationRoutes.js';
 
 const router = express.Router();
 
@@ -23,6 +24,7 @@ router.use(`${baseUrl}/notification`, notificationRoutes);
 router.use(`${baseUrl}/ai`, aiRoutes);
 router.use(`${baseUrl}/payments`, paymentRoutes);
 router.use(`${baseUrl}/market`, marketRoutes);
+router.use(`${baseUrl}/education`, educationRoutes);
 
 // Health check endpoint
 router.get('/health', (req, res) => {

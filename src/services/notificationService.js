@@ -8,7 +8,7 @@ import createHttpError from 'http-errors';
 import logger from '../config/logger.js';
 
 /**
- * Create a new notification
+ * Create a new notification 
  * @param {Object} notificationData - Notification data
  * @returns {Promise<Object>} Created notification
  */
