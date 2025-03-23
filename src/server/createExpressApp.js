@@ -43,6 +43,11 @@ const createExpressApp = () => {
     // Routes
     app.use(routes);
 
+    // Add this at the end of your routes section, before error handling middleware
+    app.get('*', (req, res) => {
+        res.status(200).json({ message: 'AgricSmart API is running' });
+    });
+
     // Error handling
     app.use(notFoundMiddleware);
     app.use(errorHandler);
