@@ -4,7 +4,7 @@
     "api/*.js": {
       "memory": 1024,
       "maxDuration": 30,
-      "runtime": "@vercel/node@2.15.8"
+      "runtime": "@vercel/node@18.x"
     }
   },
   "routes": [

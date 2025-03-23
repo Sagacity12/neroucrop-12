@@ -44,5 +44,8 @@
     "passport-google-oauth20": "^2.0.0",
     "ratelimit": "^0.0.4",
     "winston": "^3.17.0"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }
