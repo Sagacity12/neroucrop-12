@@ -12,12 +12,16 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const envPath = path.join(__dirname, '..', '.env');
 
-// Silently load environment variables
-if (fs.existsSync(envPath)) {
-  dotenv.config({ path: envPath });
-} else {
-  console.error(`No .env file found at: ${envPath}`);
-  process.exit(1);
+// Silently load environment variables if .env exists
+try {
+  if (fs.existsSync(envPath)) {
+    dotenv.config({ path: envPath });
+    console.log('Loaded environment variables from .env file');
+  } else {
+    console.log('No .env file found, using environment variables from the system');
+  }
+} catch (error) {
+  console.log('Error loading .env file, using environment variables from the system');
 }
 
 // Import express-async-errors before other imports

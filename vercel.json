@@ -6,24 +6,19 @@
       "use": "@vercel/node"
     }
   ],
-  "rewrites": [
+  "routes": [
     { 
-      "source": "/api/v1/auth/google/callback", 
-      "destination": "/src/main.js" 
+      "src": "/api/v1/(.*)", 
+      "dest": "/src/main.js" 
     },
     { 
-      "source": "/api/v1/auth/google", 
-      "destination": "/src/main.js" 
-    },
-    { 
-      "source": "/api/v1/auth/:path*", 
-      "destination": "/src/main.js" 
-    },
-    { 
-      "source": "/api/:path*", 
-      "destination": "/src/main.js" 
+      "src": "/(.*)", 
+      "dest": "/src/main.js" 
     }
   ],
+  "env": {
+    "NODE_ENV": "production"
+  },
   "headers": [
     {
       "source": "/api/(.*)",
