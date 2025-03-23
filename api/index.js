@@ -2,6 +2,7 @@
 import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
+import { connectToDatabase } from './db.js';
 
 // Create Express app
 const app = express();
@@ -20,24 +21,16 @@ app.use((req, res, next) => {
   next();
 });
 
-// Connect to MongoDB - make it optional for initial testing
+// Initialize database connection
 let dbConnected = false;
-try {
-  if (process.env.DB_URI) {
-    mongoose.connect(process.env.DB_URI)
-      .then(() => {
-        console.log('MongoDB connected');
-        dbConnected = true;
-      })
-      .catch(err => {
-        console.error('MongoDB connection error:', err);
-      });
-  } else {
-    console.log('No DB_URI provided, skipping database connection');
-  }
-} catch (error) {
-  console.error('Error in MongoDB connection setup:', error);
-}
+connectToDatabase()
+  .then(client => {
+    if (client) {
+      dbConnected = true;
+      console.log('Database connection initialized in index.js');
+    }
+  })
+  .catch(err => console.error('Failed to initialize database connection:', err));
 
 // Root route
 app.get('/', (req, res) => {
