@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import connectDB from '../src/server/dbConnect/dbConnect.js';
+import routes from '../src/routes/routes.js';
 
 // Create Express app
 const app = express();
@@ -10,7 +11,7 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(cors({
-  origin: '*',
+  origin: '*', // Allow all origins until frontend is deployed
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -78,6 +79,9 @@ try {
 } catch (error) {
   console.error('Exception during database connection setup:', error);
 }
+
+// Add your routes before the catch-all handler
+app.use(routes);
 
 // Root route
 app.get('/', (req, res) => {
