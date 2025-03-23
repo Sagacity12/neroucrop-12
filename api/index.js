@@ -22,8 +22,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// Initialize database connection
-let dbConnected = true;
+// Initialize database connection - but don't wait for it
+let dbConnected = false;
+let dbConnectionAttempted = false;
 
 // Add this near the top of your file
 const logDbUri = () => {
@@ -83,12 +84,14 @@ try {
 // Add your routes before the catch-all handler
 app.use(routes);
 
+// Simple routes that don't depend on database
 // Root route
 app.get('/', (req, res) => {
   res.status(200).json({ 
     message: 'AgricSmart API is running',
     timestamp: new Date().toISOString(),
-    dbConnected
+    dbConnected,
+    dbConnectionAttempted
   });
 });
 
@@ -96,17 +99,7 @@ app.get('/', (req, res) => {
 app.get('/api/test', (req, res) => {
   res.status(200).json({ 
     message: 'Test route is working',
-    timestamp: new Date().toISOString(),
-    dbConnected
-  });
-});
-
-// API version route
-app.get('/api/v1', (req, res) => {
-  res.status(200).json({ 
-    message: 'AgricSmart API v1',
-    timestamp: new Date().toISOString(),
-    dbConnected
+    timestamp: new Date().toISOString()
   });
 });
 
@@ -115,20 +108,17 @@ app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    dbConnected
+    uptime: process.uptime()
   });
 });
 
 // Handle all other routes
 app.all('*', (req, res) => {
-  console.log(`Handling route: ${req.method} ${req.url}`);
   res.status(200).json({
     method: req.method,
     url: req.url,
     message: 'AgricSmart API - Route handler',
-    timestamp: new Date().toISOString(),
-    dbConnected
+    timestamp: new Date().toISOString()
   });
 });
 
@@ -140,6 +130,22 @@ app.use((err, req, res, next) => {
     timestamp: new Date().toISOString()
   });
 });
+
+// Try to connect to database in the background
+if (process.env.DB_URI) {
+  dbConnectionAttempted = true;
+  mongoose.connect(process.env.DB_URI, {
+    serverSelectionTimeoutMS: 5000,
+    connectTimeoutMS: 5000
+  })
+  .then(() => {
+    console.log('MongoDB connected successfully');
+    dbConnected = true;
+  })
+  .catch(err => {
+    console.error('MongoDB connection error:', err.message);
+  });
+}
 
 // Export the Express API
 export default app; 
